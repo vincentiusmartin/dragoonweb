@@ -7,4 +7,14 @@
     <input id="pass_login_field" type="password" name="password" />
     <br />
     <input type="submit" value="Submit">
+    <br />
+
+    <?php foreach ($user as $user_item): ?>
+
+        <h2><?php echo $user_item['email'] ?></h2>
+        <div id="main">
+            <?php echo $user_item['password'] ?>
+        </div>
+
+    <?php endforeach ?>
 </form>

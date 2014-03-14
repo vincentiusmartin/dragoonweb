@@ -62,9 +62,3 @@ CREATE TABLE IF NOT EXISTS `user` (
 --
 ALTER TABLE `files`
   ADD CONSTRAINT `files_ibfk_1` FOREIGN KEY (`email`) REFERENCES `user` (`email`) ON DELETE CASCADE;
-
---
--- Constraints for table `user`
---
-ALTER TABLE `user`
-  ADD CONSTRAINT `user_ibfk_1` FOREIGN KEY (`email`) REFERENCES `files` (`email`) ON DELETE CASCADE;

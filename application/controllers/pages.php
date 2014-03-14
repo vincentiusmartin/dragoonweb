@@ -2,17 +2,22 @@
 
 class Pages extends CI_Controller {
 
-    public function view($page = 'home') {
+    public function __construct() {
+        parent::__construct();
+        $this->load->model('user_model');
+    }
 
-        if (!file_exists('application/views/pages/' . $page . '.php')) {
-            // Whoops, we don't have a page for that!
-            show_404();
-        }
+    public function index() {
+        $data['user'] = $this->user_model->get_user();
+    }
+    
+    public function view() {
 
-        $data['title'] = ucfirst($page); // Capitalize the first letter
+        $data['user'] = $this->user_model->get_user();
+        $data['title'] = 'Home '; // Capitalize the first letter
 
         $this->load->view('templates/header', $data);
-        $this->load->view('pages/' . $page, $data);
+        $this->load->view('pages/home', $data);
         $this->load->view('templates/footer', $data);
     }
 
