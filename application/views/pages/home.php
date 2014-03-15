@@ -5,16 +5,19 @@
     <br />
     <label for="password">Password&nbsp;</label>
     <input id="pass_login_field" type="password" name="password" />
-    <br />
+    <br /><br />
     <input type="submit" value="Submit">
-    <br />
-
-    <?php foreach ($user as $user_item): ?>
+    <br /><br />
+    <font>Don't have an account ? <a href="<?php echo base_url(); ?>index.php/user/register"> Register </a> </font>
+    <br /><br />
+    <font><a href="#"> Forget your password? </a> </font>
+    
+    <!--<?php foreach ($user as $user_item): ?>
 
         <h2><?php echo $user_item['email'] ?></h2>
         <div id="main">
             <?php echo $user_item['password'] ?>
         </div>
 
-    <?php endforeach ?>
+    <?php endforeach ?>-->
 </form>
