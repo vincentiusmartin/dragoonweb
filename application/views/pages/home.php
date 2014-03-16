@@ -1,5 +1,13 @@
-<form action='<?php echo base_url();?>index.php/user/process' method='post' name='process'>
+<form action='<?php echo base_url();?>index.php/user/login' method='post' name='login'>
     <h2> Login </h2>
+
+    <?php
+        if (isset($message))
+        {
+            echo $message;
+        }
+    ?>
+
     <label for="username">Username</label>
     <input type="text" name="username" />
     <br />

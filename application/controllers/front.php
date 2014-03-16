@@ -7,12 +7,20 @@ class Front extends CI_Controller {
         $this->load->model('user_model');
     }
 
-    public function index() {
+    public function index($message = NULL) {
         $data['user'] = $this->user_model->get_user();
+
     }
     
     public function view() {
 
+        $login_message = $this->session->flashdata('login_message');
+        if (isset($login_message))
+        {
+            $message = $login_message;
+        }
+
+        $data['message'] = $message;
         $data['user'] = $this->user_model->get_user();
         $data['title'] = 'Home '; // Capitalize the first letter
 
