@@ -1,4 +1,4 @@
-<form action='<?php echo base_url();?>index.php/user/processreset' method='post' name='login'>
+<form action='<?php echo base_url();?>index.php/user/processreset' method='post' name='reset'>
     
     <h2> Reset Password </h2>
 

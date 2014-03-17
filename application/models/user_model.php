@@ -25,6 +25,10 @@ class User_model extends CI_Model {
         return $this->db->insert('user', $data);
     }
 
+    public function set_resetcode($email, $resetcode) {
+        $query = $this->db->query("UPDATE `dragoon`.`user` SET `reset_code` =  '".$resetcode."' WHERE  `user`.`email` =  '".$email."';");
+    }
+
     public function validate(){
         $username = $this->security->xss_clean($this->input->post('username'));
         $password = $this->security->xss_clean($this->input->post('password'));
@@ -36,7 +40,7 @@ class User_model extends CI_Model {
         {
             $row = $query->row;
             $userdata = array(
-                    'id' => $row->email,
+                    'id' => $username,
                     //'token' => $row->token,
                     'validated' => true
                     );

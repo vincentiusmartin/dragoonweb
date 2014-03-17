@@ -12,7 +12,7 @@ class User extends CI_Controller {
 
         if ($validated)
         {
-            $this->load->view('templates/login_successful');
+            $this->load->view('pages/login_successful');
         }
         else
         {
@@ -68,12 +68,52 @@ class User extends CI_Controller {
 
     public function resetpassword()
     {
+        $data['title'] = 'Reset Password';
+
+        $this->load->view('templates/header', $data);
         $this->load->view('pages/reset');
+        $this->load->view('templates/footer');
+    }
+
+    public function newpassword()
+    {
+        $data['title'] = 'Enter New Password';
+        $data['code'] = $this->security->xss_clean($this->input->get('t'));
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('pages/newpassword', $data);
+        $this->load->view('templates/footer');
+    }
+
+    public function newpassprocess()
+    {
+        $password = sha1($this->input->post('password'));
+        $repassword = sha1($this->input->post('repassword'));
+        $token = $this->input->post('t');
+
+        if ($password === $repassword)
+        {
+            $query = $this->db->simple_query("UPDATE `dragoon`.`user` SET `password` = '".$password."' WHERE  `user`.`reset_code` = '".$token."'");
+            if ($query)
+            {
+                $data['message'] = "<font color=green>Password has been reseted.</font>";
+                $this->load->view('templates/blank', $data);
+            }
+            else
+            {
+                $data['message'] = "<font color=red>Reset password has failed.</font>";
+                $this->load->view('templates/blank', $data);
+            }
+        }
+        else
+        {
+            $data['message'] = "<font color=red>Password and password confirmation don't match.</font>";
+            $this->load->view('templates/blank', $data);
+        }
     }
 
     public function processreset()
     {
-        $this->load->library('email');
         $this->load->helper('email');
 
         $email = $this->security->xss_clean($this->input->post('email'));
@@ -86,9 +126,32 @@ class User extends CI_Controller {
             // $this->email->message('To reset your password, please follow this link: </br></br>');
 
             // $this->email->send();
-            mail($email, 'dragoonweb@gmail.com', 'Dragoon Web Reset Password Confirmation', 'To reset your password, please follow this link: </br></br>', 'From: Dragoon Web <dragoonweb@gmail.com>'.'\r\n');
 
-            $data['message'] = "<font color=green>Reset password confirmation has been sent to your email</font>";
+            $resetcode = random_string('sha1', 16);
+
+            $this->user_model->set_resetcode($email, $resetcode);
+            
+            $config = Array(
+                'protocol' => "smtp",
+                'smtp_host' => "ssl://smtp.gmail.com",
+                'smtp_port' => "465",
+                'smtp_user' => "noreply.dragoonweb@gmail.com", 
+                'smtp_pass' => "otengcoolbanget",
+                'charset' => "utf-8",
+                'mailtype' => "html",
+                'newline' => "\r\n",
+                'validation' => TRUE
+            );
+            
+            $this->load->library('email', $config);
+
+            $this->email->from('noreply.dragoonweb@gmail.com', 'Dragoon Web');
+            $this->email->to($email);
+            $this->email->subject('Dragoon Web Reset Password Confirmation');
+            $this->email->message('To reset your password, please follow this link: </br></br>'.base_url().'index.php/user/newpassword?t='.$resetcode);
+            $this->email->send();
+
+            $data['message'] = "<font color=green>Reset password confirmation has been sent to your email ".$resetcode."</font>";
 
             $this->load->view('templates/blank', $data);
         }
