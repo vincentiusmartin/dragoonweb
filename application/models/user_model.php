@@ -43,8 +43,7 @@ class User_model extends CI_Model {
             $this->session->set_userdata($userdata);
             return true;
         }
-        // If the previous process did not validate
-        // then return false.
+
         return false;
     }
 }

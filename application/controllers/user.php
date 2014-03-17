@@ -8,20 +8,37 @@ class User extends CI_Controller {
     }
 
     public function index() {
-        $this->load->view('templates/login_successful');
+        $validated = $this->isvalidated();
+
+        if ($validated)
+        {
+            $this->load->view('templates/login_successful');
+        }
+        else
+        {
+            $this->session->set_flashdata('login_message', '<font color=red>Please login to access the main page.</font><br />');
+            redirect('/');
+        }
     }
 
-    public function process() {
+    public function login() {
         $result = $this->user_model->validate();
 
         if (!$result) {
+            $this->session->set_flashdata('login_message', '<font color=red>Wrong username and/or password.</font><br />');
             redirect('/');
         } else {
             redirect('/user/');
         }
     }
 
-    public function register() {
+    public function logout() {
+        $this->session->sess_destroy();
+
+        redirect('/');
+    }
+    
+    public function register(){
         $this->load->helper('form');
         $this->load->library('form_validation');
 
@@ -62,6 +79,13 @@ class User extends CI_Controller {
         }
     }
 
+    private function isvalidated()
+    {
+        if($this->session->userdata('validated')) {
+            return true;
+        }
+        return false;
+    }
 }
 
 ?>
