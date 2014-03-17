@@ -10,15 +10,52 @@ class User extends CI_Controller {
     public function index() {
         $validated = $this->isvalidated();
 
-        if ($validated)
-        {
-            $this->load->view('pages/login_successful');
-        }
-        else
-        {
+        if ($validated) {
+            $this->load->helper(array('form', 'url'));
+
+            $data['title'] = 'User Page';
+            $data['username'] = $this->session->userdata('id');
+            $data['notification'] = '';
+
+            $this->load->view('templates/header', $data);
+            $this->load->view('pages/profile', $data);
+            $this->load->view('templates/footer');
+        } else {
             $this->session->set_flashdata('login_message', '<font color=red>Please login to access the main page.</font><br />');
             redirect('/');
         }
+    }
+
+    function do_upload() {
+        $pathToUpload = './uploads/'.$this->session->userdata('id');
+        
+        if (!file_exists($pathToUpload)) {
+            $create = mkdir($pathToUpload, 0777);
+        }
+
+        $config['upload_path'] = $pathToUpload;
+        $config['allowed_types'] = '*';
+        $config['max_size'] = '100';
+        //$config['max_width'] = '1024';
+        //$config['max_height'] = '768';
+
+        $this->load->library('upload', $config);
+
+        $data['notification'] = '';
+
+        $this->load->helper(array('form', 'url'));
+        if (!$this->upload->do_upload()) {
+            $data['notification'] = $this->upload->display_errors();
+        } else {
+            $data['upload_data'] = $this->upload->data();
+        }
+
+        $data['title'] = 'User Page';
+        $data['username'] = $this->session->userdata('id');
+
+        $this->load->view('templates/header', $data);
+        $this->load->view('pages/profile', $data);
+        $this->load->view('templates/footer');
     }
 
     public function login() {
@@ -35,10 +72,10 @@ class User extends CI_Controller {
     public function logout() {
         $this->session->sess_destroy();
 
-        redirect('/');
+        redirect(base_url());
     }
-    
-    public function register(){
+
+    public function register() {
         $this->load->helper('form');
         $this->load->library('form_validation');
 
@@ -66,8 +103,7 @@ class User extends CI_Controller {
         }
     }
 
-    public function resetpassword()
-    {
+    public function resetpassword() {
         $data['title'] = 'Reset Password';
 
         $this->load->view('templates/header', $data);
@@ -118,13 +154,11 @@ class User extends CI_Controller {
 
         $email = $this->security->xss_clean($this->input->post('email'));
 
-        if (valid_email($email))
-        {
+        if (valid_email($email)) {
             // $this->email->from('dragoonweb@gmail.com', 'Dragoon Web');
             // $this->email->to($email);
             // $this->email->subject('Dragoon Web Reset Password Confirmation');
             // $this->email->message('To reset your password, please follow this link: </br></br>');
-
             // $this->email->send();
 
             $resetcode = random_string('sha1', 16);
@@ -154,9 +188,7 @@ class User extends CI_Controller {
             $data['message'] = "<font color=green>Reset password confirmation has been sent to your email ".$resetcode."</font>";
 
             $this->load->view('templates/blank', $data);
-        }
-        else
-        {
+        } else {
             $data['message'] = "<font color=red>Email is not valid</font>";
 
             $this->load->view('templates/blank', $data);
@@ -165,9 +197,9 @@ class User extends CI_Controller {
 
     public function unique_username_check($str) {
         $query = $this->db->get_where('user', array('email' => $str));
-        
+
         $count_row = $query->num_rows();
-        
+
         if ($count_row > 0) {
             $this->form_validation->set_message('unique_username_check', 'Email has already registered, choose different email');
             return FALSE;
@@ -176,13 +208,13 @@ class User extends CI_Controller {
         }
     }
 
-    private function isvalidated()
-    {
-        if($this->session->userdata('validated')) {
+    private function isvalidated() {
+        if ($this->session->userdata('validated')) {
             return true;
         }
         return false;
     }
+
 }
 
 ?>

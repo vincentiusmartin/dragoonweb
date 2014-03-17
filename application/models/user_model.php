@@ -32,6 +32,7 @@ class User_model extends CI_Model {
     public function validate(){
         $username = $this->security->xss_clean($this->input->post('username'));
         $password = $this->security->xss_clean($this->input->post('password'));
+        $password = sha1($password);
         
         // query to check user in database
         $query = $this->db->get_where('user', array('email' => $username, 'password' => $password));
@@ -44,6 +45,7 @@ class User_model extends CI_Model {
                     //'token' => $row->token,
                     'validated' => true
                     );
+            
             $this->session->set_userdata($userdata);
             return true;
         }

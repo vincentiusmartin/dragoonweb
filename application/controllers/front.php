@@ -9,24 +9,35 @@ class Front extends CI_Controller {
 
     public function index($message = NULL) {
         $data['user'] = $this->user_model->get_user();
-
     }
     
-    public function view() {
-
-        $login_message = $this->session->flashdata('login_message');
-        if (isset($login_message))
-        {
-            $message = $login_message;
+    private function isvalidated() {
+        if ($this->session->userdata('validated')) {
+            return true;
         }
+        return false;
+    }
 
-        $data['message'] = $message;
-        $data['user'] = $this->user_model->get_user();
-        $data['title'] = 'Home '; // Capitalize the first letter
+    public function view() {
+        $validated = $this->isvalidated();
 
-        $this->load->view('templates/header', $data);
-        $this->load->view('pages/home', $data);
-        $this->load->view('templates/footer', $data);
+        if (!$validated) {
+
+            $login_message = $this->session->flashdata('login_message');
+            if (isset($login_message)) {
+                $message = $login_message;
+            }
+
+            $data['message'] = $message;
+            $data['user'] = $this->user_model->get_user();
+            $data['title'] = 'Home '; // Capitalize the first letter
+
+            $this->load->view('templates/header', $data);
+            $this->load->view('pages/home', $data);
+            $this->load->view('templates/footer', $data);
+        }else{
+            redirect(base_url().'index.php/user');
+        }
     }
 
 }
