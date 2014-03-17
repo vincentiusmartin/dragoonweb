@@ -62,6 +62,40 @@ class User extends CI_Controller {
         }
     }
 
+    public function resetpassword()
+    {
+        $this->load->view('pages/reset');
+    }
+
+    public function processreset()
+    {
+        $this->load->library('email');
+        $this->load->helper('email');
+
+        $email = $this->security->xss_clean($this->input->post('email'));
+
+        if (valid_email($email))
+        {
+            // $this->email->from('dragoonweb@gmail.com', 'Dragoon Web');
+            // $this->email->to($email);
+            // $this->email->subject('Dragoon Web Reset Password Confirmation');
+            // $this->email->message('To reset your password, please follow this link: </br></br>');
+
+            // $this->email->send();
+            mail($email, 'dragoonweb@gmail.com', 'Dragoon Web Reset Password Confirmation', 'To reset your password, please follow this link: </br></br>', 'From: Dragoon Web <dragoonweb@gmail.com>'.'\r\n');
+
+            $data['message'] = "<font color=green>Reset password confirmation has been sent to your email</font>";
+
+            $this->load->view('templates/blank', $data);
+        }
+        else
+        {
+            $data['message'] = "<font color=red>Email is not valid</font>";
+
+            $this->load->view('templates/blank', $data);
+        }
+    }
+
     private function isvalidated()
     {
         if($this->session->userdata('validated')) {
