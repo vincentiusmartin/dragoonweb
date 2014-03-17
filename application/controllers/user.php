@@ -41,14 +41,18 @@ class User extends CI_Controller {
     public function register(){
         $this->load->helper('form');
         $this->load->library('form_validation');
-        
+
         $data['title'] = 'Register';
-        
-        $this->form_validation->set_rules('email', 'email', 'trim|required|valid_email');
-        $this->form_validation->set_rules('password', 'password', 'trim|required|matches[passconf]|md5');
+
+        $this->form_validation->set_rules('email', 'email', 'trim|required|valid_email|callback_unique_username_check|xss_clean');
+        $this->form_validation->set_rules('password', 'password', 'trim|required|matches[passconf]|sha1|min_length[6]');
         $this->form_validation->set_rules('passconf', 'password confirmation', 'trim|required');
-        
+
         if ($this->form_validation->run() === FALSE) { //fail to register
+            $data['password_error'] = form_error('password');
+            $data['email_error'] = form_error('email');
+            $data['passconf_error'] = form_error('passconf');
+
             $this->load->view('templates/header', $data);
             $this->load->view('pages/register', $data);
             $this->load->view('templates/footer');
@@ -93,6 +97,19 @@ class User extends CI_Controller {
             $data['message'] = "<font color=red>Email is not valid</font>";
 
             $this->load->view('templates/blank', $data);
+        }
+    }
+
+    public function unique_username_check($str) {
+        $query = $this->db->get_where('user', array('email' => $str));
+        
+        $count_row = $query->num_rows();
+        
+        if ($count_row > 0) {
+            $this->form_validation->set_message('unique_username_check', 'Email has already registered, choose different email');
+            return FALSE;
+        } else {
+            return TRUE;
         }
     }
 
