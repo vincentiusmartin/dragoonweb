@@ -28,5 +28,5 @@
 
 <font>Don't have an account ? <a href="<?php echo base_url(); ?>index.php/user/register"> Register </a> </font>
 <br /><br />
-<font><a href="<?php echo base_url();?>index.php/user/resetpassword"> Forget your password? </a> </font>
+<font><a href="<?php echo base_url();?>index.php/user/resetpassword"> Forgot your password? </a> </font>
     

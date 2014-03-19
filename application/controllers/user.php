@@ -125,13 +125,14 @@ class User extends CI_Controller {
     {
         $password = sha1($this->input->post('password'));
         $repassword = sha1($this->input->post('repassword'));
-        $token = $this->input->post('t');
+        $token = $this->security->xss_clean($this->input->post('t'));
 
-        if ($password === $repassword)
+        if ($password === $repassword && isset($token))
         {
             $query = $this->db->simple_query("UPDATE `dragoon`.`user` SET `password` = '".$password."' WHERE  `user`.`reset_code` = '".$token."'");
             if ($query)
             {
+                $this->db->simple_query("UPDATE `dragoon`.`user` SET `reset_code` = NULL WHERE  `user`.`reset_code` = '".$token."'");
                 $data['message'] = "<font color=green>Password has been reseted.</font>";
                 $this->load->view('templates/blank', $data);
             }
@@ -182,10 +183,10 @@ class User extends CI_Controller {
             $this->email->from('noreply.dragoonweb@gmail.com', 'Dragoon Web');
             $this->email->to($email);
             $this->email->subject('Dragoon Web Reset Password Confirmation');
-            $this->email->message('To reset your password, please follow this link: </br></br>'.base_url().'index.php/user/newpassword?t='.$resetcode);
+            $this->email->message('To reset your password, please follow this link: </br></br> <a href='.base_url().'index.php/user/newpassword?t='.$resetcode.' >Reset Password</a>');
             $this->email->send();
 
-            $data['message'] = "<font color=green>Reset password confirmation has been sent to your email ".$resetcode."</font>";
+            $data['message'] = "<font color=green>Reset password confirmation has been sent to your email </font>";
 
             $this->load->view('templates/blank', $data);
         } else {
