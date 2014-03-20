@@ -1,7 +1,7 @@
 Dragoon Web
 ===========
 
-Aplikasi Dragoon Web dapat diakses di http://
+Aplikasi Dragoon Web dapat diakses di http://dragoonweb.pagodabox.com/
 
 #Fitur#
 
