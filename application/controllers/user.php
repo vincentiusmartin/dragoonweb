@@ -13,6 +13,16 @@ class User extends CI_Controller {
         force_download($filename, './uploads/' . $this->session->userdata('id') . '/' . $filename);
     }
 
+    function deleteFile($filename) {
+        $filepath = './uploads/' . $this->session->userdata('id'). '/' . $filename;
+
+        if (is_file($filepath)){
+            unlink($filepath); // delete file
+        }
+        
+        redirect(base_url());
+    }
+
     function userDirContent() {
         $this->load->helper('directory');
 
@@ -25,7 +35,7 @@ class User extends CI_Controller {
         }
 
         for ($i = 0; $i < count($fileslist); $i++) {
-            $fileslist[$i] = '<a href=' . base_url() . 'index.php/user/downloadFile/'.$fileslist[$i].'>' . $fileslist[$i] . '</a>';
+            $fileslist[$i] = '<a href=' . base_url() . 'index.php/user/downloadFile/' . $fileslist[$i] . '>' . $fileslist[$i] . '</a> - '.'<a onClick="return confirm(\'Are you sure you want to delete?\')" href=' . base_url() . 'index.php/user/deleteFile/' . $fileslist[$i] . '>delete</a>';
         }
 
         return $fileslist;
