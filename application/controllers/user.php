@@ -5,9 +5,14 @@ class User extends CI_Controller {
     function __construct() {
         parent::__construct();
         $this->load->model('user_model');
+        $this->load->helper('download');
     }
 
     //--used functions--
+    function downloadFile($filename) {
+        force_download($filename, './uploads/' . $this->session->userdata('id') . '/' . $filename);
+    }
+
     function userDirContent() {
         $this->load->helper('directory');
 
@@ -18,11 +23,16 @@ class User extends CI_Controller {
         if (file_exists($userpath)) {
             $fileslist = directory_map($userpath);
         }
-        
+
+        for ($i = 0; $i < count($fileslist); $i++) {
+            $fileslist[$i] = '<a href=' . base_url() . 'index.php/user/downloadFile/'.$fileslist[$i].'>' . $fileslist[$i] . '</a>';
+        }
+
         return $fileslist;
     }
+
     //--end of user functions--
-    
+
     public function index() {
         $validated = $this->isvalidated();
 
@@ -45,7 +55,7 @@ class User extends CI_Controller {
         }
     }
 
-    function upload() {
+    public function upload() {
         $pathToUpload = './uploads/' . $this->session->userdata('id');
 
         if (!file_exists($pathToUpload)) {
