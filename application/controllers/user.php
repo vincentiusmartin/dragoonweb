@@ -7,6 +7,22 @@ class User extends CI_Controller {
         $this->load->model('user_model');
     }
 
+    //--used functions--
+    function userDirContent() {
+        $this->load->helper('directory');
+
+        $fileslist = array();
+
+        $userpath = './uploads/' . $this->session->userdata('id');
+
+        if (file_exists($userpath)) {
+            $fileslist = directory_map($userpath);
+        }
+        
+        return $fileslist;
+    }
+    //--end of user functions--
+    
     public function index() {
         $validated = $this->isvalidated();
 
@@ -17,6 +33,9 @@ class User extends CI_Controller {
             $data['username'] = $this->session->userdata('id');
             $data['notification'] = '';
 
+            //read from directory
+            $data['fileslist'] = $this->userDirContent();
+
             $this->load->view('templates/header', $data);
             $this->load->view('pages/profile', $data);
             $this->load->view('templates/footer');
@@ -26,9 +45,9 @@ class User extends CI_Controller {
         }
     }
 
-    function do_upload() {
-        $pathToUpload = './uploads/'.$this->session->userdata('id');
-        
+    function upload() {
+        $pathToUpload = './uploads/' . $this->session->userdata('id');
+
         if (!file_exists($pathToUpload)) {
             $create = mkdir($pathToUpload, 0777);
         }
@@ -53,6 +72,9 @@ class User extends CI_Controller {
         $data['title'] = 'User Page';
         $data['username'] = $this->session->userdata('id');
 
+        //read from directory
+        $data['fileslist'] = $this->userDirContent();
+
         $this->load->view('templates/header', $data);
         $this->load->view('pages/profile', $data);
         $this->load->view('templates/footer');
@@ -76,30 +98,34 @@ class User extends CI_Controller {
     }
 
     public function register() {
-        $this->load->helper('form');
-        $this->load->library('form_validation');
+        if ($validated) {
+            $this->load->helper('form');
+            $this->load->library('form_validation');
 
-        $data['title'] = 'Register';
+            $data['title'] = 'Register';
 
-        $this->form_validation->set_rules('email', 'email', 'trim|required|valid_email|callback_unique_username_check|xss_clean');
-        $this->form_validation->set_rules('password', 'password', 'trim|required|matches[passconf]|sha1|min_length[6]');
-        $this->form_validation->set_rules('passconf', 'password confirmation', 'trim|required');
+            $this->form_validation->set_rules('email', 'email', 'trim|required|valid_email|callback_unique_username_check|xss_clean');
+            $this->form_validation->set_rules('password', 'password', 'trim|required|matches[passconf]|sha1|min_length[6]');
+            $this->form_validation->set_rules('passconf', 'password confirmation', 'trim|required');
 
-        if ($this->form_validation->run() === FALSE) { //fail to register
-            $data['password_error'] = form_error('password');
-            $data['email_error'] = form_error('email');
-            $data['passconf_error'] = form_error('passconf');
+            if ($this->form_validation->run() === FALSE) { //fail to register
+                $data['password_error'] = form_error('password');
+                $data['email_error'] = form_error('email');
+                $data['passconf_error'] = form_error('passconf');
 
-            $this->load->view('templates/header', $data);
-            $this->load->view('pages/register', $data);
-            $this->load->view('templates/footer');
-        } else { //success registered
-            $data['username'] = $this->input->post('username');
-            $this->user_model->set_user();
+                $this->load->view('templates/header', $data);
+                $this->load->view('pages/register', $data);
+                $this->load->view('templates/footer');
+            } else { //success registered
+                $data['username'] = $this->input->post('username');
+                $this->user_model->set_user();
 
-            $this->load->view('templates/header', $data);
-            $this->load->view('pages/home', $data);
-            $this->load->view('templates/footer');
+                $this->load->view('templates/header', $data);
+                $this->load->view('pages/home', $data);
+                $this->load->view('templates/footer');
+            }
+        } else {
+            redirect('/');
         }
     }
 
@@ -111,8 +137,7 @@ class User extends CI_Controller {
         $this->load->view('templates/footer');
     }
 
-    public function newpassword()
-    {
+    public function newpassword() {
         $data['title'] = 'Enter New Password';
         $data['code'] = $this->security->xss_clean($this->input->get('t'));
 
@@ -121,36 +146,28 @@ class User extends CI_Controller {
         $this->load->view('templates/footer');
     }
 
-    public function newpassprocess()
-    {
+    public function newpassprocess() {
         $password = sha1($this->input->post('password'));
         $repassword = sha1($this->input->post('repassword'));
         $token = $this->security->xss_clean($this->input->post('t'));
 
-        if ($password === $repassword && isset($token))
-        {
-            $query = $this->db->simple_query("UPDATE `dragoon`.`user` SET `password` = '".$password."' WHERE  `user`.`reset_code` = '".$token."'");
-            if ($query)
-            {
-                $this->db->simple_query("UPDATE `dragoon`.`user` SET `reset_code` = NULL WHERE  `user`.`reset_code` = '".$token."'");
+        if ($password === $repassword && isset($token)) {
+            $query = $this->db->simple_query("UPDATE `dragoon`.`user` SET `password` = '" . $password . "' WHERE  `user`.`reset_code` = '" . $token . "'");
+            if ($query) {
+                $this->db->simple_query("UPDATE `dragoon`.`user` SET `reset_code` = NULL WHERE  `user`.`reset_code` = '" . $token . "'");
                 $data['message'] = "<font color=green>Password has been reseted.</font>";
                 $this->load->view('templates/blank', $data);
-            }
-            else
-            {
+            } else {
                 $data['message'] = "<font color=red>Reset password has failed.</font>";
                 $this->load->view('templates/blank', $data);
             }
-        }
-        else
-        {
+        } else {
             $data['message'] = "<font color=red>Password and password confirmation don't match.</font>";
             $this->load->view('templates/blank', $data);
         }
     }
 
-    public function processreset()
-    {
+    public function processreset() {
         $this->load->helper('email');
 
         $email = $this->security->xss_clean($this->input->post('email'));
@@ -165,25 +182,25 @@ class User extends CI_Controller {
             $resetcode = random_string('sha1', 16);
 
             $this->user_model->set_resetcode($email, $resetcode);
-            
+
             $config = Array(
                 'protocol' => "smtp",
                 'smtp_host' => "ssl://smtp.gmail.com",
                 'smtp_port' => "465",
-                'smtp_user' => "noreply.dragoonweb@gmail.com", 
+                'smtp_user' => "noreply.dragoonweb@gmail.com",
                 'smtp_pass' => "otengcoolbanget",
                 'charset' => "utf-8",
                 'mailtype' => "html",
                 'newline' => "\r\n",
                 'validation' => TRUE
             );
-            
+
             $this->load->library('email', $config);
 
             $this->email->from('noreply.dragoonweb@gmail.com', 'Dragoon Web');
             $this->email->to($email);
             $this->email->subject('Dragoon Web Reset Password Confirmation');
-            $this->email->message('To reset your password, please follow this link: </br></br> <a href='.base_url().'index.php/user/newpassword?t='.$resetcode.' >Reset Password</a>');
+            $this->email->message('To reset your password, please follow this link: </br></br> <a href=' . base_url() . 'index.php/user/newpassword?t=' . $resetcode . ' >Reset Password</a>');
             $this->email->send();
 
             $data['message'] = "<font color=green>Reset password confirmation has been sent to your email </font>";
