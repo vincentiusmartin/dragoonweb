@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 13, 2014 at 01:02 PM
+-- Generation Time: Mar 20, 2014 at 08:48 AM
 -- Server version: 5.5.8
 -- PHP Version: 5.3.5
 
@@ -16,7 +16,7 @@ SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 /*!40101 SET NAMES utf8 */;
 
 --
--- Database: `tubes1kpi`
+-- Database: `dragoon`
 --
 
 -- --------------------------------------------------------
@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS `files` (
 CREATE TABLE IF NOT EXISTS `user` (
   `email` varchar(100) NOT NULL,
   `password` varchar(100) NOT NULL,
+  `reset_code` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -52,6 +53,9 @@ CREATE TABLE IF NOT EXISTS `user` (
 -- Dumping data for table `user`
 --
 
+INSERT INTO `user` (`email`, `password`, `reset_code`) VALUES
+('a.limanthie@yahoo.com', 'b1b3773a05c0ed0176787a4f1574ff0075f7521e', NULL),
+('admin@mail.com', 'b1b3773a05c0ed0176787a4f1574ff0075f7521e', NULL);
 
 --
 -- Constraints for dumped tables
