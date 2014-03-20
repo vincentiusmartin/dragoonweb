@@ -1,4 +1,6 @@
 <form action='<?php echo base_url();?>index.php/user/login' method='post' name='login'>
+    <font color ="blue" size="3"><?php if(isset($registermsg)) { echo $registermsg; } ?></font>
+    
     <h2> Login </h2>
 
     <?php
@@ -16,14 +18,6 @@
     <br /><br />
     <input type="submit" value="Submit">
 
-    <!--<?php foreach ($user as $user_item): ?>
-
-        <h2><?php echo $user_item['email'] ?></h2>
-        <div id="main">
-            <?php echo $user_item['password'] ?>
-        </div>
-
-    <?php endforeach ?>-->
 </form>
 
 <font>Don't have an account ? <a href="<?php echo base_url(); ?>index.php/user/register"> Register </a> </font>

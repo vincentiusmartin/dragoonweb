@@ -74,7 +74,7 @@ class User extends CI_Controller {
 
         $config['upload_path'] = $pathToUpload;
         $config['allowed_types'] = '*';
-        $config['max_size'] = '100';
+        $config['max_size'] = '1000';
         //$config['max_width'] = '1024';
         //$config['max_height'] = '768';
 
@@ -84,9 +84,9 @@ class User extends CI_Controller {
 
         $this->load->helper(array('form', 'url'));
         if (!$this->upload->do_upload()) {
-            $data['notification'] = $this->upload->display_errors();
+            $data['notification'] = '<font color = "red" size="4"><b>'.$this->upload->display_errors().'</b></font>';
         } else {
-            $data['upload_data'] = $this->upload->data();
+            $data['notification'] = '<font color = "blue" size="4"><b>You have succesfully uploaded your file </b></font>';
         }
 
         $data['title'] = 'User Page';
@@ -118,14 +118,14 @@ class User extends CI_Controller {
     }
 
     public function register() {
-        if ($validated) {
+        if (!isset($validated)) {
             $this->load->helper('form');
             $this->load->library('form_validation');
 
             $data['title'] = 'Register';
 
-            $this->form_validation->set_rules('email', 'email', 'trim|required|valid_email|callback_unique_username_check|xss_clean');
-            $this->form_validation->set_rules('password', 'password', 'trim|required|matches[passconf]|sha1|min_length[6]');
+            $this->form_validation->set_rules('email', 'email', 'trim|xss_clean|required|valid_email|callback_unique_username_check');
+            $this->form_validation->set_rules('password', 'password', 'trim|min_length[6]|required|matches[passconf]|sha1');
             $this->form_validation->set_rules('passconf', 'password confirmation', 'trim|required');
 
             if ($this->form_validation->run() === FALSE) { //fail to register
@@ -139,6 +139,8 @@ class User extends CI_Controller {
             } else { //success registered
                 $data['username'] = $this->input->post('username');
                 $this->user_model->set_user();
+                
+                $data['registermsg'] = 'You have been sucessfully registered, please log in to see your account.';
 
                 $this->load->view('templates/header', $data);
                 $this->load->view('pages/home', $data);
