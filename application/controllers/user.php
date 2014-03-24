@@ -118,6 +118,8 @@ class User extends CI_Controller {
     }
 
     public function register() {
+        $validated = $this->isvalidated();
+        
         if (!isset($validated)) {
             $this->load->helper('form');
             $this->load->library('form_validation');
